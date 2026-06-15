@@ -4,7 +4,6 @@ import { useBrand } from "../context/BrandContext";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const schema = Yup.object({
   email: Yup.string()
@@ -15,19 +14,11 @@ const schema = Yup.object({
 
 type ValueType = Yup.InferType<typeof schema>;
 
-// this is a leftover from the localStorage implementation
-const SESSION_KEY = "app_session_user";
 
 export default function Login() {
   const { login } = useAuth();
   const { brand } = useBrand();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const auth = getAuth();
 
   const formik = useFormik<ValueType>({
     initialValues: {
@@ -38,6 +29,7 @@ export default function Login() {
       // handle authentication here
       await login(email, password);
     },
+    validationSchema: schema
   });
 
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +42,7 @@ export default function Login() {
   //     setError("Invalid email or password");
   //   }
   //   setLoading(false);
-  // };
+  // ;
 
   return (
     <div
@@ -81,12 +73,12 @@ export default function Login() {
             <p className="text-gray-500 text-sm mt-1">{brand.tagline}</p>
           </div>
 
-          {error && (
+          {formik.touched.email && formik.errors.email && (
             <div className="flex items-center gap-2 bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
               <AlertCircle size={16} />
-              {error}
-            </div>
-          )}
+              {formik.errors.email}
+            </div> )}
+          
 
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div>
@@ -101,6 +93,11 @@ export default function Login() {
                 required
               />
             </div>
+            {formik.touched.password && formik.errors.password && (
+            <div className="flex items-center gap-2 bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+              <AlertCircle size={16} />
+              {formik.errors.password}
+            </div> )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Password
@@ -124,11 +121,11 @@ export default function Login() {
             </div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={formik.isSubmitting}
               className="btn-primary w-full py-2.5 flex items-center justify-center gap-2"
               style={{ backgroundColor: brand.primaryColor }}
             >
-              {loading ? (
+              {formik.isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 "Sign In"
@@ -136,31 +133,25 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-100">
+          {/* <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-xs text-gray-400 text-center mb-3">
               Demo Credentials
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => {
-                  setEmail("ceo@company.com");
-                  setPassword("admin123");
-                }}
+                
                 className="btn-secondary text-xs py-2"
               >
                 👑 CEO Login
               </button>
               <button
-                onClick={() => {
-                  setEmail("staff@company.com");
-                  setPassword("staff123");
-                }}
+                
                 className="btn-secondary text-xs py-2"
               >
                 👤 Staff Login
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

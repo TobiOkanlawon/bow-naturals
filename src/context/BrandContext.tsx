@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
-import { db } from "@/context/firebase";
+import { db } from "./firebase";
 
 export interface BrandSettings {
   name: string;

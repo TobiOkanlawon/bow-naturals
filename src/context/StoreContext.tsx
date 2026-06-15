@@ -18,7 +18,8 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "@/context/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { db, auth } from "./firebase";
 import type {
   StaffMember,
   Product,
@@ -722,7 +723,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const addStaffMember = useCallback(async (member: StaffMember) => {
-    await setDoc(doc(db, "staff", member.id), member);
+    try {
+      await createUserWithEmailAndPassword(auth, member.email, member.password);
+      await setDoc(doc(db, "staff", member.id), member);
+    } catch (error) {
+      console.error('Error adding staff member:', error);
+      throw error;
+    }
   }, []);
 
   const updateStaffMember = useCallback(

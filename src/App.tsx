@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BrandProvider, useBrand } from "./context/BrandContext";
 import { StoreProvider } from "./context/StoreContext";
 import Layout, { type Page } from "./components/Layout";
+import LoadingSpinner from "./components/LoadingSpinner";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import StaffDashboard from "./pages/StaffDashboard";
@@ -20,7 +21,7 @@ import SalesTracker from "./pages/SalesTracker";
 import FirebaseProvider from "./context/FirebaseContext";
 
 function AppContent() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { brand } = useBrand();
   const isCEO = user?.role === "ceo";
   const [page, setPage] = useState<Page>("dashboard");
@@ -34,6 +35,10 @@ function AppContent() {
       }
     }
   }, [user, isCEO, page]);
+
+  if (loading) {
+    return <LoadingSpinner color={brand.primaryColor} />;
+  }
 
   if (!user) return <Login />;
 
