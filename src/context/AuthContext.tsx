@@ -23,14 +23,14 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: async () => false,
+  login: async () => ({ success: false }),
   logout: async () => {},
 });
 
@@ -120,13 +120,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged above handles setUser — no need to do it here
-      return true;
-    } catch {
-      return false;
+      return { success: true };
+    } catch (error: any) {
+      let errorMsg = 'Login failed';
+      if (error.code === 'auth/user-not-found') {
+        errorMsg = 'Email not found';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMsg = 'Wrong password';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = 'Invalid email';
+      } else if (error.code === 'auth/user-disabled') {
+        errorMsg = 'Account disabled';
+      }
+      return { success: false, error: errorMsg };
     }
   };
 

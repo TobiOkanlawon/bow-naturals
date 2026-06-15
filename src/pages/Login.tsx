@@ -19,6 +19,7 @@ export default function Login() {
   const { login } = useAuth();
   const { brand } = useBrand();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string>("");
 
   const formik = useFormik<ValueType>({
     initialValues: {
@@ -26,8 +27,11 @@ export default function Login() {
       password: "",
     },
     onSubmit: async ({ email, password }) => {
-      // handle authentication here
-      await login(email, password);
+      setLoginError("");
+      const result = await login(email, password);
+      if (!result.success && result.error) {
+        setLoginError(result.error);
+      }
     },
     validationSchema: schema
   });
@@ -78,7 +82,13 @@ export default function Login() {
               <AlertCircle size={16} />
               {formik.errors.email}
             </div> )}
-          
+
+          {loginError && (
+            <div className="flex items-center gap-2 bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+              <AlertCircle size={16} />
+              {loginError}
+            </div>
+          )}
 
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div>
